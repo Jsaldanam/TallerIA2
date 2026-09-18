@@ -21,26 +21,56 @@ class MultiAgentSearchAgent(ABC):
 class MinimaxAgent(MultiAgentSearchAgent):
     """Agente Minimax para el defensor MAX frente al intruso MIN."""
 
-    def get_action(self, state: GameState) -> str | None:
-        """
-        Retorna la acción del defensor con mayor valor Minimax.
+    def get_action(propio, state: GameState) -> str | None:
+        propio.nodes_evaluated = 0
+        legal_actions = state.get_legal_actions(0)
+        if not legal_actions:
+            return None
 
-        El defensor es MAX (agente 0), el intruso es MIN (agente 1) y cada
-        acción consume un ply. Debe respetar el orden de las acciones legales,
-        usar evaluation_function en terminales y cortes, y contar cada estado
-        procesado una vez en self.nodes_evaluated, incluida la raíz.
+        propio.nodes_evaluated += 1  
+        alpha, beta = float("-inf"), float("inf")
+        best_action = legal_actions[0]
+        best_value = float("-inf")
 
-        Tips:
-        - Use state.get_legal_actions(agent_index) y
-          state.generate_successor(agent_index, action) para expandir el árbol.
-        - Compruebe state.is_win(), state.is_lose() y el corte de profundidad;
-          evalúe esos estados con evaluation_function(state).
-        - El siguiente agente es (agent_index + 1) % state.get_num_agents().
-          depth=1 incluye una acción de MAX y depth=2 una de MAX y una de MIN.
-        - Reinicie las métricas y cuente una vez cada estado procesado, incluida
-          la raíz. Retorne la acción de MAX y conserve la primera en los empates.
-        """
-        # TODO: Add your code here
+        for action in legal_actions:
+            successor = state.generate_successor(0, action)
+            value = propio._value(successor, 1, propio.depth - 1, alpha, beta)
+            if value > best_value:
+                best_value = value
+                best_action = action
+            alpha = max(alpha, best_value)
+
+        return best_action
+
+    def _value(
+        propio, state: GameState, agent_index: int, depth: int, alpha: float, beta: float
+    ) -> float:
+        propio.nodes_evaluated += 1
+
+        if state.is_win() or state.is_lose() or depth == 0:
+            return evaluation_function(state)
+
+        legal_actions = state.get_legal_actions(agent_index)
+        next_agent = (agent_index + 1) % state.get_num_agents()
+
+        if agent_index == 0:  
+            value = float("-inf")
+            for action in legal_actions:
+                successor = state.generate_successor(agent_index, action)
+                value = max(value, propio._value(successor, next_agent, depth - 1, alpha, beta))
+                if value >= beta:
+                    return value
+                alpha = max(alpha, value)
+            return value
+        else:  # MIN (intruso)
+            value = float("inf")
+            for action in legal_actions:
+                successor = state.generate_successor(agent_index, action)
+                value = min(value, propio._value(successor, next_agent, depth - 1, alpha, beta))
+                if value <= alpha:
+                    return value
+                beta = min(beta, value)
+            return value
         raise NotImplementedError("Punto 4: implemente MinimaxAgent.get_action")
 
 

@@ -285,6 +285,14 @@ def genetic_algorithm(
         while len(nueva_poblacion) < population_size:
             parent1 = problem.tournament_select(population, rng)
             parent2 = problem.tournament_select(population, rng)
+        historial_mejores.append(mejor_de_todos)
+        nueva_poblacion = population[:elite_size]
+        scores_actuales = [configuration_score(problem, ind) for ind in population]
+        while len(nueva_poblacion) < population_size:
+            parent1 = problem.tournament_select(population, scores_actuales, rng = rng)
+            parent2 = problem.tournament_select(population, scores_actuales, rng = rng)
+
+
             child1, child2 = one_point_crossover(parent1, parent2, rng)
             child1 = problem.repair_configuration(child1, rng)
             child2 = problem.repair_configuration(child2, rng)
