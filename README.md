@@ -19,6 +19,9 @@ python -m pip install -r requirements.txt
 ```bash
 python main.py
 ```
+Juan David Saldaña mateus 202511865 j.saldanam@uniandes.edu.co
+Carlos Alberto Espinosa Marmolejo 202515673 ca.espinosam1@uniandes.edu.co
+Juan David Navarro Florez 202526487 j.navarrof@uniandes.edu.co
 
 La interfaz permite seleccionar con el ratón o con `Tab` y `Enter`: punto,
 escenario, modo de visualización, velocidad y perfil de búsqueda. En los
