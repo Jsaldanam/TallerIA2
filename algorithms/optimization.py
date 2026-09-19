@@ -280,19 +280,14 @@ def genetic_algorithm(
         if mejor_de_todos is None or mejor_puntaje < mejor_puntaje_local:
             mejor_de_todos = mejor_local
             mejor_puntaje = mejor_puntaje_local
-        historial_mejores.append(mejor_puntaje)
-        nueva_poblacion = population[:elite_size]
-        while len(nueva_poblacion) < population_size:
-            parent1 = problem.tournament_select(population, rng)
-            parent2 = problem.tournament_select(population, rng)
         historial_mejores.append(mejor_de_todos)
         nueva_poblacion = population[:elite_size]
-        scores_actuales = [configuration_score(problem, ind) for ind in population]
+        scores_actuales = []
+        for ind in population:
+            scores_actuales.append(configuration_score(problem, ind))
         while len(nueva_poblacion) < population_size:
-            parent1 = problem.tournament_select(population, scores_actuales, rng = rng)
-            parent2 = problem.tournament_select(population, scores_actuales, rng = rng)
-
-
+            parent1 = problem.tournament_select(population, scores_actuales, rng)
+            parent2 = problem.tournament_select(population, scores_actuales, rng)
             child1, child2 = one_point_crossover(parent1, parent2, rng)
             child1 = problem.repair_configuration(child1, rng)
             child2 = problem.repair_configuration(child2, rng)
@@ -304,4 +299,6 @@ def genetic_algorithm(
         population = nueva_poblacion
 
             
-    return OptimizationResult(configuration = mejor_de_todos, score = mejor_puntaje, evaluation = len(historial_mejores), iterations = len(historial_mejores), history = historial_mejores)
+    return OptimizationResult(
+        best_configuration=mejor_de_todos, best_score=mejor_puntaje, evaluations=len(historial_mejores), iterations=len(historial_mejores), history=historial_mejores
+    )
